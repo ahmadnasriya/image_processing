@@ -1,0 +1,11 @@
+{
+    "esmDir": "auto",
+    "verbose": false,
+    "copyFiles": {
+        "from": "./src",
+        "exclude": [
+            ".js"
+        ]
+    },
+    "addExtensions": true
+}
