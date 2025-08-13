@@ -1,26 +1,27 @@
 import express from 'express';
-import Busboy from 'busboy';
-
-import fs from 'fs';
-import path from 'path';
 
 import mediaManager from './mediaManager';
 import consts from '../../consts';
 import HTTPError from '../../utils/HTTPError';
+import { handleMultipart, handleRaw } from './helpers';
 
 import type { Request, Response, NextFunction } from 'express';
 import type {
-    AcceptedExts,
     AcceptedMimes,
     Endpoint,
     EndpointMethod,
-    FileName,
-    FilePath,
     FileServeOptions,
-    OriginalFileName,
 } from '../../docs';
 
 const mediaRouter = express.Router();
+
+function parseDimension(value: string, name: string) {
+    const num = parseInt(value);
+    if (isNaN(num)) {
+        throw new Error(`Invalid ${name} parameter: ${value}`);
+    }
+    return num;
+}
 
 const controllers: Record<`v${number}`, Endpoint> = {
     v1: {
@@ -39,7 +40,7 @@ const controllers: Record<`v${number}`, Endpoint> = {
                         if (!contentType) {
                             return res
                                 .status(400)
-                                .json({ error: 'No content type' });
+                                .json({ error: `The content type is missing` });
                         }
 
                         if (
@@ -69,134 +70,15 @@ const controllers: Record<`v${number}`, Endpoint> = {
                         }
 
                         if (contentType === 'multipart/form-data') {
-                            await new Promise<void>((resolve, reject) => {
-                                const busboy = Busboy({ headers: req.headers });
-
-                                busboy.on('file', (name, file, info) => {
-                                    const { filename, mimeType } = info;
-                                    const ext = path
-                                        .extname(filename)
-                                        .toLowerCase()
-                                        .replace('.', '') as AcceptedExts;
-
-                                    const extMimeData = consts.MIME_DATA.find(
-                                        (i) =>
-                                            (
-                                                i.extensions as unknown as string[]
-                                            ).includes(ext)
-                                    );
-                                    if (!extMimeData) {
-                                        return res.status(400).json({
-                                            error: `File extension ${ext} is not allowed. Allowed extensions: ${consts.ACCEPTED_EXTS.join(', ')}`,
-                                        });
-                                    }
-
-                                    if (extMimeData.type !== mimeType) {
-                                        return res.status(400).json({
-                                            error: `Mime type ${contentType} does not match the file extension ${ext}`,
-                                        });
-                                    }
-
-                                    const originalName = filename.replace(
-                                        `.${ext}`,
-                                        ''
-                                    ) as OriginalFileName;
-                                    const tempFileName =
-                                        `${originalName}-${Date.now()}` as FileName;
-                                    const filePath = path.join(
-                                        consts.TEMP_UPLOAD_DIR,
-                                        `${tempFileName}.${ext}`
-                                    ) as FilePath;
-
-                                    file.pipe(fs.createWriteStream(filePath))
-                                        .on('finish', () => {
-                                            req.rawUpload = {
-                                                type: 'multipart',
-                                                fileName: tempFileName,
-                                                originalName,
-                                                extension: ext,
-                                                tempFilePath: filePath,
-                                                contentType: mimeType,
-                                                contentLength: contentLength,
-                                            };
-                                        })
-                                        .on('error', reject);
-                                });
-
-                                busboy.on('finish', resolve);
-                                busboy.on('error', reject);
-
-                                req.pipe(busboy);
-                            });
-
-                            next();
+                            handleMultipart(req, res, next, contentLength);
                         } else {
-                            const fileName = req.query
-                                .fileName as OriginalFileName;
-                            if (!fileName) {
-                                return res.status(400).json({
-                                    error: `A binary upload requires a file name (fileName) parameter in the URL query`,
-                                });
-                            }
-
-                            const ext = path
-                                .extname(fileName)
-                                .toLowerCase()
-                                .replace('.', '') as AcceptedExts;
-                            const extMimeData = consts.MIME_DATA.find((i) =>
-                                (i.extensions as unknown as string[]).includes(
-                                    ext
-                                )
+                            handleRaw(
+                                req,
+                                res,
+                                next,
+                                contentLength,
+                                contentType as AcceptedMimes
                             );
-                            if (!extMimeData) {
-                                return res.status(400).json({
-                                    error: `File extension ${ext} is not allowed. Allowed extensions: ${consts.ACCEPTED_EXTS.join(', ')}`,
-                                });
-                            }
-
-                            if (extMimeData.type !== contentType) {
-                                return res.status(400).json({
-                                    error: `Mime type ${contentType} does not match the file extension ${ext}`,
-                                });
-                            }
-
-                            const originalName = fileName.replace(
-                                `.${ext}`,
-                                ''
-                            ) as OriginalFileName;
-                            const tempFileName =
-                                `${originalName}-${Date.now()}` as FileName;
-                            const filePath = path.join(
-                                consts.TEMP_UPLOAD_DIR,
-                                `${tempFileName}.${ext}`
-                            ) as FilePath;
-
-                            await new Promise<void>((resolve, reject) => {
-                                const writeStream =
-                                    fs.createWriteStream(filePath);
-                                writeStream.on('finish', () => {
-                                    req.rawUpload = {
-                                        type: 'binary',
-                                        fileName: tempFileName,
-                                        originalName,
-                                        extension: ext,
-                                        tempFilePath: filePath,
-                                        contentLength: contentLength,
-                                        contentType: contentType,
-                                    };
-                                    resolve();
-                                });
-
-                                writeStream.on('error', (err) => {
-                                    fs.unlink(filePath, () => reject(err));
-                                });
-
-                                req.on('error', reject);
-
-                                req.pipe(writeStream);
-                            });
-
-                            next();
                         }
                     } catch (error) {
                         console.error(error);
@@ -220,9 +102,13 @@ const controllers: Record<`v${number}`, Endpoint> = {
                     try {
                         const data = await mediaManager.addMedia(rawUpload);
                         res.status(201).json({
+                            status: 'success',
+                            id: data.id,
+                            url: `/_api/v1/media/${data.id}?fileName=${encodeURIComponent(data.originalName)}.${data.extension}`,
+                            width: data.meta.width,
+                            height: data.meta.height,
                             message:
                                 'Your image was uploaded successfully and is now available at the given url',
-                            url: `/_api/v1/media/${data.id}?fileName=${encodeURIComponent(data.originalName)}`,
                         });
                     } catch (error) {
                         console.trace(error);
@@ -255,30 +141,38 @@ const controllers: Record<`v${number}`, Endpoint> = {
                         const query = req.query;
 
                         if ('size' in query) {
-                            const [width_, height_] = (
+                            const [widthStr, heightStr] = (
                                 query.size as string
                             ).split('x');
-                            if (!(width_ && height_)) {
+
+                            if (!(widthStr && heightStr)) {
                                 return res.status(400).json({
                                     error: `Invalid size parameter: ${query.size}`,
                                 });
                             }
 
-                            const width = parseInt(width_);
-                            if (isNaN(width)) {
-                                return res.status(400).json({
-                                    error: `Invalid width parameter: ${width_}`,
-                                });
-                            }
+                            options.size = {
+                                width: parseDimension(widthStr, 'width'),
+                                height: parseDimension(heightStr, 'height'),
+                            };
+                        } else {
+                            const width = query.width
+                                ? parseDimension(query.width as string, 'width')
+                                : undefined;
+                            const height = query.height
+                                ? parseDimension(
+                                      query.height as string,
+                                      'height'
+                                  )
+                                : undefined;
 
-                            const height = parseInt(height_);
-                            if (isNaN(height)) {
-                                return res.status(400).json({
-                                    error: `Invalid height parameter: ${height_}`,
-                                });
+                            if (width !== undefined || height !== undefined) {
+                                options.size = {};
+                                if (width !== undefined)
+                                    options.size.width = width;
+                                if (height !== undefined)
+                                    options.size.height = height;
                             }
-
-                            options.size = { width, height };
                         }
 
                         if ('rotate' in query) {
@@ -324,6 +218,11 @@ const controllers: Record<`v${number}`, Endpoint> = {
 
                             options.flop = flop === 'true';
                         }
+
+                        res.setHeader(
+                            'Content-Type',
+                            `image/${mediaMeta.extension}`
+                        );
 
                         const stream = (await mediaManager.serveMedia(
                             mediaId,

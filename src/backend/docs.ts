@@ -1,7 +1,7 @@
-import { Brand } from '@nasriya/atomix';
 import sharp from 'sharp';
 import fs from 'fs';
 import consts from './consts';
+import { Brand } from '@nasriya/atomix';
 import { RequestHandler } from 'express';
 
 export type FilePath = Brand<
@@ -14,10 +14,20 @@ export type OriginalFileName = Brand<
     'OriginalFileName'
 >;
 
+export type FileServeQuery = {
+    size?: `${number}x${number}`;
+    width?: number;
+    height?: number;
+    rotate?: number;
+    quality?: number;
+    flip?: boolean;
+    flop?: boolean;
+};
+
 export interface FileServeOptions {
     size?: {
-        width: number;
-        height: number;
+        width?: number;
+        height?: number;
     };
     rotate?: number;
     quality?: number;

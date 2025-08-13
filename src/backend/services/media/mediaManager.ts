@@ -25,6 +25,10 @@ class MediaManager {
     #_initialized = false;
 
     constructor() {
+        const thumbPath = path.join(consts.UPLOAD_DIR, 'thumbnails');
+        fs.mkdirSync(consts.FINAL_UPLOAD_DIR, { recursive: true });
+        fs.mkdirSync(consts.TEMP_UPLOAD_DIR, { recursive: true });
+        fs.mkdirSync(thumbPath, { recursive: true });
         this.#_writeStream = fs.createWriteStream(this.#_backupPath, {
             flags: 'a',
         });
@@ -257,11 +261,6 @@ class MediaManager {
                     const hasWidth = hasOwnProperty(size, 'width');
                     const hasHeight = hasOwnProperty(size, 'height');
 
-                    if (!(hasHeight && hasWidth)) {
-                        argsError.message = `The size option must contain both width and height options, but instead received: ${JSON.stringify(size)}`;
-                        throw argsError;
-                    }
-
                     if (hasWidth) {
                         const width = size.width;
                         if (!atomix.valueIs.number(width)) {
@@ -288,14 +287,17 @@ class MediaManager {
                         }
                     }
 
-                    if (
-                        options.size!.width <= data.meta.width &&
-                        options.size!.height <= data.meta.height
-                    ) {
-                        configs.size = {
-                            width: options.size!.width,
-                            height: options.size!.height,
-                        };
+                    const cSize: { width?: number; height?: number } = {};
+                    if (size.width! < data.meta.width) {
+                        cSize.width = options.size!.width;
+                    }
+
+                    if (size.height! < data.meta.height) {
+                        cSize.height = options.size!.height;
+                    }
+
+                    if (Object.keys(cSize).length > 0) {
+                        configs.size = cSize;
                     }
                 }
 
@@ -316,7 +318,10 @@ class MediaManager {
                         throw argsError;
                     }
 
-                    configs.rotate = rotate;
+                    // Only apply if it changes the image
+                    if (rotate !== 0 && rotate !== 360) {
+                        configs.rotate = rotate;
+                    }
                 }
 
                 if (hasOwnProperty(options, 'quality')) {
