@@ -49,7 +49,7 @@ const controllers: Record<`v${number}`, Endpoint> = {
                             ) &&
                             contentType !== 'multipart/form-data'
                         ) {
-                            return res.status(400).json({
+                            return res.status(415).json({
                                 error: `Mime type ${contentType} is not accepted. Accepted types: ${consts.ACCEPTED_MIMES.join(', ')}`,
                             });
                         }
