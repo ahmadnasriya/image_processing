@@ -7,10 +7,12 @@ import { handleMultipart, handleRaw } from './helpers';
 
 import type { Request, Response, NextFunction } from 'express';
 import type {
+    AcceptedExts,
     AcceptedMimes,
     Endpoint,
     EndpointMethod,
     FileServeOptions,
+    MediaFilePublicMeta,
 } from '../../docs';
 
 const mediaRouter = express.Router();
@@ -120,6 +122,38 @@ const controllers: Record<`v${number}`, Endpoint> = {
                                     : 'Something went wrong while validating the request',
                         });
                     }
+                },
+            ],
+        },
+
+        'media/:mediaId/meta': {
+            get: [
+                (req: Request, res: Response) => {
+                    const mediaId = req.params.mediaId;
+
+                    const mediaMeta = mediaManager.getMediaMeta(mediaId);
+                    if (!mediaMeta) {
+                        return res.status(404).json({
+                            error: `Media with id ${mediaId} does not exist`,
+                        });
+                    }
+
+                    if (!mediaMeta.id) {
+                        return res.status(500).json({
+                            error: `Media with id ${mediaId} does not exist`,
+                        });
+                    }
+
+                    const meta: MediaFilePublicMeta = {
+                        id: mediaId,
+                        originalName: mediaMeta.originalName,
+                        extension: mediaMeta.extension,
+                        width: mediaMeta.meta.width,
+                        height: mediaMeta.meta.height,
+                        mimeType: `image/${mediaMeta.meta.format as AcceptedExts}`,
+                    };
+
+                    res.json(meta);
                 },
             ],
         },

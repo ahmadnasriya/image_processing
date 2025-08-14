@@ -12,6 +12,11 @@
         "strict": true,
         "forceConsistentCasingInFileNames": true,
         "resolveJsonModule": true,
+        "paths": {
+            "@static/*": [
+                "./src/frontend/static/*"
+            ]
+        }
     },
     "include": [
         "src/**/*"

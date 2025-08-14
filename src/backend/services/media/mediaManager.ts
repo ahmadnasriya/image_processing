@@ -65,8 +65,8 @@ class MediaManager {
             for await (const line of rl) {
                 try {
                     const obj = JSON.parse(line);
-                    const { id, ...meta } = obj;
-                    this.#_files.set(id, meta);
+                    const meta = obj;
+                    this.#_files.set(meta.id, meta);
                 } catch {
                     // Ignore malformed lines or handle errors
                 }

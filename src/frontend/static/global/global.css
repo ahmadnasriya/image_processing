@@ -1,0 +1,366 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+:is(html, body, div, span, applet, object, iframe,
+    h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+    a, abbr, acronym, address, big, cite, code,
+    del, dfn, em, img, ins, kbd, q, s, samp,
+    small, strike, strong, sub, sup, tt, var,
+    b, u, i, center,
+    dl, dt, dd, ol, ul, li,
+    fieldset, form, label, legend,
+    table, caption, tbody, tfoot, thead, tr, th, td,
+    article, aside, canvas, details, embed,
+    figure, figcaption, footer, header, hgroup,
+    menu, nav, output, ruby, section, summary,
+    time, mark, audio, video) {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+}
+
+/* HTML5 display-role reset for older browsers */
+:is(article, aside, details, figcaption,
+    figure, footer, header, hgroup,
+    menu, nav, section) {
+    display: block;
+}
+
+
+body {
+    line-height: 1;
+}
+
+:is(ol, ul) {
+    list-style: none;
+}
+
+:is(blockquote, q) {
+    quotes: none;
+}
+
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {
+    content: '';
+    content: none;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+/* Defaults (fallbacks if no theme attribute is set) */
+:root {
+    --bg: #fdf6e3;
+    /* light cream */
+    --surface: #ffffff;
+    --text: #333333;
+    --muted: #7a7a7a;
+    --border: #d1d5db;
+
+    --primary: #6366f1;
+    /* indigo-500 */
+    --on-primary: #ffffff;
+
+    --secondary: #f59e0b;
+    /* amber-500 */
+    --on-secondary: #1f2937;
+
+    --focus: #3b82f6;
+    /* blue-500 */
+    --shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* THEME 1: Minimal & Neutral */
+:root[data-theme="minimal"] {
+    --bg: #f9fafb;
+    --surface: #ffffff;
+    --text: #111827;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+
+    --primary: #2563eb;
+    /* blue-600 */
+    --on-primary: #ffffff;
+
+    --secondary: #f43f5e;
+    /* rose-500 */
+    --on-secondary: #ffffff;
+
+    --focus: #3b82f6;
+    /* blue-500 */
+    --shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* THEME 2: Dark & Moody */
+:root[data-theme="dark"] {
+    --bg: #0f172a;
+    /* dark navy */
+    --surface: #1e293b;
+    /* slate-800 */
+    --text: #e2e8f0;
+    /* slate-200 */
+    --muted: #94a3b8;
+    /* slate-400 */
+    --border: #334155;
+    /* slate-700 */
+
+    --primary: #22c55e;
+    /* green-500 */
+    --on-primary: #0f172a;
+
+    --secondary: #facc15;
+    /* yellow-400 */
+    --on-secondary: #1e293b;
+
+    --focus: #3b82f6;
+    /* blue-500 */
+    --shadow: 0 10px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* THEME 3: Fresh & Playful */
+:root[data-theme="fresh"] {
+    --bg: #f0fdf4;
+    /* mint green */
+    --surface: #ffffff;
+    --text: #065f46;
+    /* emerald-800 */
+    --muted: #6b7280;
+    --border: #d1fae5;
+    /* light green */
+
+    --primary: #10b981;
+    /* emerald-500 */
+    --on-primary: #ffffff;
+
+    --secondary: #3b82f6;
+    /* blue-500 */
+    --on-secondary: #ffffff;
+
+    --focus: #22d3ee;
+    /* cyan-400 */
+    --shadow: 0 8px 28px rgba(0, 0, 0, 0.1);
+}
+
+/* THEME 4: Warm & Cozy */
+:root[data-theme="warm"] {
+    --bg: #fff7ed;
+    /* soft peach */
+    --surface: #ffffff;
+    --text: #78350f;
+    /* brown-700 */
+    --muted: #9d6b53;
+    --border: #fcd9b3;
+
+    --primary: #f97316;
+    /* orange-500 */
+    --on-primary: #ffffff;
+
+    --secondary: #dc2626;
+    /* red-600 */
+    --on-secondary: #ffffff;
+
+    --focus: #facc15;
+    /* yellow-400 */
+    --shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* Optional: auto-dark if no explicit theme set */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) {
+        --bg: #0f172a;
+        /* dark navy */
+        --surface: #1e293b;
+        /* slate-800 */
+        --text: #e2e8f0;
+        /* slate-200 */
+        --muted: #94a3b8;
+        /* slate-400 */
+        --border: #334155;
+        /* slate-700 */
+
+        --primary: #22c55e;
+        /* green-500 */
+        --on-primary: #0f172a;
+
+        --secondary: #facc15;
+        /* yellow-400 */
+        --on-secondary: #1e293b;
+
+        --focus: #3b82f6;
+        /* blue-500 */
+        --shadow: 0 10px 32px rgba(0, 0, 0, 0.5);
+    }
+}
+
+/* ---- Base element tokens ---- */
+html,
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    border-radius: 16px;
+}
+
+button {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .625rem 1rem;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    font-weight: 600;
+    background: var(--primary);
+    color: var(--on-primary);
+    transition: transform .06s ease, filter .2s ease, box-shadow .2s ease;
+    text-align: center;
+    justify-content: center;
+    cursor: pointer;
+
+    &:hover {
+        filter: brightness(1.05);
+    }
+
+    &:active {
+        transform: translateY(1px) scale(.99);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: 2px;
+    }
+
+    &.secondary {
+        background: var(--secondary);
+        color: var(--on-secondary);
+    }
+
+    &:disabled {
+        background: var(--muted);
+        color: #f0fdf4;
+        cursor: not-allowed;
+        filter: none;
+        /* cancel hover effects */
+        transform: none;
+        /* cancel active effects */
+        opacity: 0.6;
+    }
+}
+
+label {
+    margin-bottom: .5rem;
+    display: block;
+    font-weight: bold;
+    font-size: small;
+}
+
+:is(input, select, textarea) {
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: .6rem .8rem;
+
+    &:invalid {
+        border-color: red;
+    }
+
+    &:not([type="checkbox"], [type="radio"]) {
+        min-width: 100px;
+    }
+
+    &:focus {
+        outline: 2px solid var(--focus);
+        outline-offset: 2px;
+    }
+}
+
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    /* Remove default styling */
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--border);
+    /* Track background */
+    outline: none;
+    padding: 0;
+    margin: 0;
+
+    &::-webkit-slider-runnable-track {
+        height: 8px;
+        border-radius: 4px;
+        background: var(--border);
+    }
+
+    &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        background: var(--primary);
+        border-radius: 50%;
+        border: 2px solid #fff;
+        cursor: pointer;
+        margin-top: -6px;
+        /* centers the thumb */
+        transition: background 0.2s ease;
+    }
+
+    &::-webkit-slider-thumb:hover {
+        background: var(--secondary);
+    }
+
+    /* Firefox */
+    &::-moz-range-track {
+        height: 8px;
+        border-radius: 4px;
+        background: var(--border);
+    }
+
+    &::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        background: var(--primary);
+        border-radius: 50%;
+        border: 2px solid #fff;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+
+    &::-moz-range-thumb:hover {
+        background: var(--secondary);
+    }
+
+    /* Optional: focus style */
+    &:focus {
+        outline: none;
+    }
+}
+
+.range-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+
+    >input[type="range"] {
+        flex: 1;
+    }
+}

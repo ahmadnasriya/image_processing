@@ -1,7 +1,7 @@
 import sharp from 'sharp';
 import fs from 'fs';
 import consts from './consts';
-import { Brand } from '@nasriya/atomix';
+import { Brand, Prettify } from '@nasriya/atomix';
 import { RequestHandler } from 'express';
 
 export type FilePath = Brand<
@@ -44,6 +44,14 @@ export interface MediaFile {
     meta: sharp.Metadata;
     stats: fs.Stats;
 }
+
+export type MediaFilePublicMeta = Prettify<
+    Pick<MediaFile, 'id' | 'originalName' | 'extension'> & {
+        width: number;
+        height: number;
+        mimeType: AcceptedMimes;
+    }
+>;
 
 export type AcceptedMimes = (typeof consts.ACCEPTED_MIMES)[number];
 export type AcceptedExts =

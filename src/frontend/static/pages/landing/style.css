@@ -1,0 +1,98 @@
+body {
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+    gap: 2rem;
+    text-align: center;
+}
+
+h1 {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: 16px;
+    padding: 3rem 4rem;
+    background: var(--surface);
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.drop-zone.dragover {
+    border-color: var(--primary);
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.drop-zone input {
+    display: none;
+}
+
+.drop-zone p {
+    color: var(--muted);
+}
+
+/* Header container */
+.page-header {
+    width: 100%;
+    max-width: 800px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    gap: 1rem;
+    box-sizing: border-box;
+}
+
+/* Header title */
+.page-header h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+/* Theme selector container */
+.theme-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Theme selector label */
+.theme-selector label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text);
+}
+
+/* Theme selector dropdown */
+.theme-selector select {
+    padding: 0.4rem 0.6rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.theme-selector select:focus {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+}
+
+/* Page main spacing */
+.page-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    width: 100%;
+    max-width: 800px;
+    padding: 0 2rem;
+    box-sizing: border-box;
+}

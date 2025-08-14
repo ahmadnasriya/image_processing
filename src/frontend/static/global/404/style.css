@@ -1,0 +1,77 @@
+:is(html, body) {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Arial', sans-serif;
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+}
+
+h1 {
+    font-size: 8rem;
+    margin: 0;
+    color: var(--primary);
+}
+
+h2 {
+    font-size: 2rem;
+    margin: 0.5rem 0 2rem;
+    color: var(--text);
+}
+
+p {
+    font-size: 1.1rem;
+    color: var(--muted);
+    margin-bottom: 2rem;
+}
+
+a.button {
+    color: var(--text);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.8rem 1.5rem;
+    border-radius: 999px;
+    text-decoration: none;
+    font-weight: 600;
+    color: var(--on-primary);
+    background: var(--primary);
+    transition: transform 0.1s ease, filter 0.2s ease;
+    box-shadow: var(--shadow);
+    margin-block: 0.5rem;
+
+    &:hover {
+        filter: brightness(1.05);
+        transform: scale(1.05);
+    }
+
+    &.secondary {
+        background: var(--secondary);
+        color: var(--on-secondary);
+    }
+}
+
+/* Optional: illustration or emoji */
+.emoji {
+    font-size: 5rem;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 600px) {
+    h1 {
+        font-size: 5rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+}
