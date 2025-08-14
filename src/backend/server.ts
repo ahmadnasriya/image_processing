@@ -1,4 +1,3 @@
-import atomix from '@nasriya/atomix';
 import express from 'express';
 import path from 'path';
 import { routers } from './services/index';
@@ -16,10 +15,19 @@ const notFoundPath = path.join(
 );
 app.use((_, res) => res.sendFile(notFoundPath));
 
-const server = app.listen(5000, () => {
-    const host = atomix.networks.local.getLocalIPs()[0] || 'localhost';
-    console.log(`Server is now listening on port ${PORT}`);
-    console.log(`=> http://${host}:${PORT}`);
+const server = app.listen(PORT, () => {
+    console.log(
+        `🚀 Server running in ${process.env.NODE_ENV || 'development'} mode`
+    );
+    console.log(`🌐 Listening on http://localhost:${PORT}`);
+    console.log(`📂 Available endpoints:`);
+    console.log(`   POST   /_api/v1/media          -> Upload an image`);
+    console.log(
+        `   GET    /_api/v1/media/:id      -> Access or transform an image`
+    );
+    console.log(
+        `   GET    /_api/v1/media/:id/meta -> Get metadata of an image`
+    );
 });
 
 export default server;
