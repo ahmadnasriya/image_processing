@@ -27,7 +27,7 @@ fileInput.addEventListener('change', () => {
     }
 });
 
-async function handleFile(file: File) {
+async function handleFile(file: File): Promise<void> {
     const formData = new FormData();
     formData.append('media', file);
 

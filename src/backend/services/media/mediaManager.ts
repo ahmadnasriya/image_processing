@@ -51,7 +51,7 @@ class MediaManager {
     }
 
     readonly #_systemHelpers = {
-        initContent: async () => {
+        initContent: async (): Promise<void> => {
             if (!fs.existsSync(this.#_backupPath)) {
                 return;
             }
@@ -73,7 +73,7 @@ class MediaManager {
             }
         },
 
-        cleanup: async () => {
+        cleanup: async (): Promise<void> => {
             if (!this.#_writeStream.destroyed) {
                 this.#_writeStream.end(() => process.exit());
             } else {
@@ -83,7 +83,10 @@ class MediaManager {
     };
 
     readonly #_helpers = {
-        createMediaReadStream: (data: MediaFile, options: FileServeOptions) => {
+        createMediaReadStream: async (
+            data: MediaFile,
+            options: FileServeOptions
+        ): Promise<fs.ReadStream> => {
             const isCustom = Object.keys(options).length > 0;
 
             if (isCustom) {
@@ -384,7 +387,7 @@ class MediaManager {
      * @returns {Promise<void>}
      * @private
      */
-    async _init() {
+    async _init(): Promise<void> {
         if (this.#_initialized) {
             return;
         }

@@ -37,7 +37,7 @@ class HTTPError extends Error {
      * @type {number}
      * @readonly
      */
-    get status() {
+    get status(): number {
         return this.#_data.status;
     }
 
@@ -48,7 +48,7 @@ class HTTPError extends Error {
      * @type {string}
      * @readonly
      */
-    get code() {
+    get code(): string {
         return this.#_data.code;
     }
 
@@ -59,7 +59,7 @@ class HTTPError extends Error {
      * @type {string}
      * @readonly
      */
-    get stack() {
+    get stack(): string | undefined {
         return super.stack;
     }
 }

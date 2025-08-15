@@ -33,7 +33,7 @@ class ThemesManager {
      * @param theme The theme to set. Can be one of the values in the #_themes array
      *              or 'auto' to use the system theme.
      */
-    setTheme(theme: SiteTheme | 'auto') {
+    setTheme(theme: SiteTheme | 'auto'): void {
         if (this.#_selector) {
             this.#_selector.value = theme;
         }

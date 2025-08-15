@@ -21,7 +21,7 @@ class ImageEditor {
 
     readonly #_handlers = {
         userHandler: null as EditorChangeHandler | null,
-        systemHandler: () => {
+        systemHandler: (): void => {
             const url = this.url;
             this.#_handlers.userHandler?.(url);
         },
@@ -122,7 +122,7 @@ class ImageEditor {
      *
      * @param {EditorChangeHandler} handler - The function to be invoked on configuration changes.
      */
-    onChange(handler: EditorChangeHandler) {
+    onChange(handler: EditorChangeHandler): void {
         this.#_handlers.userHandler = handler;
     }
 
@@ -295,11 +295,12 @@ class ImageEditor {
      * Downloads the image with applied configurations. The filename is a Base64 encoding
      * of the configuration object, followed by the original filename and extension.
      */
-    download() {
+    download(): this {
         const a = document.createElement('a');
         a.href = this.url;
         a.download = `${btoa(JSON.stringify(this.#_configs))}_${this.#_original.originalName}.${this.#_original.extension}`;
         a.click();
+        return this;
     }
 }
 

@@ -16,7 +16,7 @@ function handleMultipart(
     res: Response,
     next: NextFunction,
     contentLength: number
-) {
+): void {
     const busboy = Busboy({ headers: req.headers });
     const uploads: Promise<void>[] = [];
     let fileReceived = false;
@@ -80,7 +80,7 @@ async function handleRaw(
     next: NextFunction,
     contentLength: number,
     contentType: AcceptedMimes
-) {
+): Promise<Response | void> {
     const fileName = req.query.fileName as OriginalFileName;
     if (!fileName) {
         return res.status(400).json({

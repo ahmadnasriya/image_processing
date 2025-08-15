@@ -17,7 +17,7 @@ import type {
 
 const mediaRouter = express.Router();
 
-function parseDimension(value: string, name: string) {
+function parseDimension(value: string, name: string): number {
     const num = parseInt(value);
     if (isNaN(num)) {
         throw new Error(`Invalid ${name} parameter: ${value}`);
@@ -33,7 +33,7 @@ const controllers: Record<`v${number}`, Endpoint> = {
                     req: Request,
                     res: Response,
                     next: NextFunction
-                ) {
+                ): Promise<Response | undefined> {
                     try {
                         // Parse the content type
                         const contentType = req.headers['content-type']
@@ -93,7 +93,10 @@ const controllers: Record<`v${number}`, Endpoint> = {
                     }
                 },
 
-                async function postUpload(req: Request, res: Response) {
+                async function postUpload(
+                    req: Request,
+                    res: Response
+                ): Promise<Response | void> {
                     const rawUpload = req.rawUpload;
                     if (!rawUpload) {
                         return res
@@ -128,7 +131,10 @@ const controllers: Record<`v${number}`, Endpoint> = {
 
         'media/:mediaId/meta': {
             get: [
-                (req: Request, res: Response) => {
+                async (
+                    req: Request,
+                    res: Response
+                ): Promise<Response | void> => {
                     const mediaId = req.params.mediaId;
 
                     const mediaMeta = mediaManager.getMediaMeta(mediaId);
@@ -160,7 +166,10 @@ const controllers: Record<`v${number}`, Endpoint> = {
 
         'media/:mediaId': {
             get: [
-                async function serveMedia(req: Request, res: Response) {
+                async function serveMedia(
+                    req: Request,
+                    res: Response
+                ): Promise<Response | void> {
                     const mediaId = req.params.mediaId;
 
                     try {

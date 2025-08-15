@@ -17,14 +17,14 @@ class EditorApp {
 
         this.#_updateImgSrc = (() => {
             let timer: ReturnType<typeof setTimeout>;
-            return (src: string) => {
+            return (src: string): void => {
                 clearTimeout(timer);
                 timer = setTimeout(() => (elements.preview.src = src), 100);
             };
         })();
     }
 
-    #_init() {
+    #_init(): void {
         // Prefill values
         elements.preview.src = elements.urlInput.value = editor.url;
         elements.size.width.value = editor.original.width.toString();
@@ -40,11 +40,11 @@ class EditorApp {
             this.#_updateImgSrc(url);
         });
 
-        elements.resetBtn.onclick = () => editor.reset();
-        elements.downloadBtn.onclick = () => editor.download();
+        elements.resetBtn.onclick = (): ImageEditor => editor.reset();
+        elements.downloadBtn.onclick = (): ImageEditor => editor.download();
 
         let alertShown = false;
-        elements.copyUrlBtn.onclick = () => {
+        elements.copyUrlBtn.onclick = (): void => {
             if (navigator.clipboard?.writeText) {
                 elements.copyUrlBtn.disabled = true;
                 navigator.clipboard?.writeText(editor.url).then(() => {
@@ -73,7 +73,7 @@ class EditorApp {
         const aspectRatio = editor.original.width / editor.original.height;
         elements.preview.style.aspectRatio = `${editor.original.width} / ${editor.original.height}`;
 
-        elements.size.width.oninput = () => {
+        elements.size.width.oninput = (): void => {
             const value = elements.size.width.value;
             if (value === '') {
                 elements.size.width.value = editor.original.width.toString();
@@ -89,7 +89,7 @@ class EditorApp {
             editor.setWidth(widthValue);
         };
 
-        elements.size.height.oninput = () => {
+        elements.size.height.oninput = (): void => {
             const value = elements.size.height.value;
             if (value === '') {
                 elements.size.height.value = editor.original.height.toString();
@@ -105,7 +105,7 @@ class EditorApp {
             editor.setHeight(heightValue);
         };
 
-        elements.quality.num.oninput = () => {
+        elements.quality.num.oninput = (): void => {
             const qStr = elements.quality.num.value;
             const qualityValue = parseInt(qStr, 10);
             elements.quality.slider.value = qStr;
@@ -113,7 +113,7 @@ class EditorApp {
             editor.setQuality(qualityValue);
         };
 
-        elements.quality.slider.oninput = () => {
+        elements.quality.slider.oninput = (): void => {
             const qStr = elements.quality.slider.value;
             const qualityValue = parseInt(qStr, 10);
             elements.quality.num.value = qStr;
@@ -121,22 +121,22 @@ class EditorApp {
             editor.setQuality(qualityValue);
         };
 
-        elements.rotate.right.onclick = () => {
+        elements.rotate.right.onclick = (): void => {
             const newAngleInput = editor.configs.rotate + 90;
             const newAngle =
                 newAngleInput > 360 ? newAngleInput - 360 : newAngleInput;
             editor.rotate(newAngle);
         };
 
-        elements.rotate.left.onclick = () => {
+        elements.rotate.left.onclick = (): void => {
             const newAngleInput = editor.configs.rotate - 90;
             const newAngle =
                 newAngleInput < 0 ? newAngleInput + 360 : newAngleInput;
             editor.rotate(newAngle);
         };
 
-        elements.flip.horizontal.onclick = () => editor.flop();
-        elements.flip.vertical.onclick = () => editor.flip();
+        elements.flip.horizontal.onclick = (): ImageEditor => editor.flop();
+        elements.flip.vertical.onclick = (): ImageEditor => editor.flip();
     }
 }
 

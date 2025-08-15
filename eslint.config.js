@@ -26,7 +26,8 @@ export default defineConfig([
             "@typescript-eslint/no-namespace": [
                 "error",
                 { "allowDeclarations": true }
-            ]
+            ],
+            "@typescript-eslint/explicit-function-return-type": "error"
         }
     }
 ])
