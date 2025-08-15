@@ -35,7 +35,6 @@ class HTTPError extends Error {
      * that will be sent to the client if this error is thrown as a result of
      * an API call.
      * @type {number}
-     * @readonly
      */
     get status(): number {
         return this.#_data.status;

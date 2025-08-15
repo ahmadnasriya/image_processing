@@ -18,10 +18,24 @@ import type {
 const mediaRouter = express.Router();
 
 function parseDimension(value: string, name: string): number {
-    const num = parseInt(value);
+    const argErr = new HTTPError('', { status: 400, code: 'ARGUMENT_ERROR' });
+    const num = parseInt(value, 10);
+
     if (isNaN(num)) {
-        throw new Error(`Invalid ${name} parameter: ${value}`);
+        argErr.message = `The "${name}" parameter must be a valid integer, but received "${value}".`;
+        throw argErr;
     }
+
+    if (String(num) !== value) {
+        argErr.message = `The "${name}" parameter must be a whole number without decimals or extra characters. Received: "${value}".`;
+        throw argErr;
+    }
+
+    if (num <= 0) {
+        argErr.message = `The "${name}" parameter must be a positive number, but received "${value}".`;
+        throw argErr;
+    }
+
     return num;
 }
 
@@ -83,7 +97,6 @@ const controllers: Record<`v${number}`, Endpoint> = {
                             );
                         }
                     } catch (error) {
-                        console.error(error);
                         res.status(500).json({
                             error:
                                 error instanceof Error
@@ -171,13 +184,23 @@ const controllers: Record<`v${number}`, Endpoint> = {
                     res: Response
                 ): Promise<Response | void> {
                     const mediaId = req.params.mediaId;
+                    const badReqErr = new HTTPError('Bad Request', {
+                        status: 400,
+                        code: 'ARGUMENT_ERROR',
+                    });
 
                     try {
                         const mediaMeta = mediaManager.getMediaMeta(mediaId);
                         if (!mediaMeta) {
-                            return res.status(404).json({
-                                error: `Media with id ${mediaId} does not exist`,
-                            });
+                            const err = new HTTPError(
+                                `Media with id ${mediaId} does not exist`,
+                                {
+                                    status: 404,
+                                    code: 'MEDIA_NOT_FOUND',
+                                }
+                            );
+
+                            throw err;
                         }
 
                         const options: FileServeOptions = {};
@@ -189,9 +212,8 @@ const controllers: Record<`v${number}`, Endpoint> = {
                             ).split('x');
 
                             if (!(widthStr && heightStr)) {
-                                return res.status(400).json({
-                                    error: `Invalid size parameter: ${query.size}`,
-                                });
+                                badReqErr.message = `Invalid size parameter: ${query.size}`;
+                                throw badReqErr;
                             }
 
                             options.size = {
@@ -199,14 +221,14 @@ const controllers: Record<`v${number}`, Endpoint> = {
                                 height: parseDimension(heightStr, 'height'),
                             };
                         } else {
+                            const qWidth = query.width as string;
+                            const qHeight = query.height as string;
+
                             const width = query.width
-                                ? parseDimension(query.width as string, 'width')
+                                ? parseDimension(qWidth, 'width')
                                 : undefined;
                             const height = query.height
-                                ? parseDimension(
-                                      query.height as string,
-                                      'height'
-                                  )
+                                ? parseDimension(qHeight, 'height')
                                 : undefined;
 
                             if (width !== undefined || height !== undefined) {
@@ -219,22 +241,43 @@ const controllers: Record<`v${number}`, Endpoint> = {
                         }
 
                         if ('rotate' in query) {
-                            const rotate = parseInt(query.rotate as string);
+                            const rotate = parseInt(query.rotate as string, 10);
+
                             if (isNaN(rotate)) {
-                                return res.status(400).json({
-                                    error: `Invalid rotate parameter: ${query.rotate}`,
-                                });
+                                badReqErr.message = `The "rotate" parameter must be a valid integer between 0 and 360 degrees. Received: "${query.rotate}".`;
+                                throw badReqErr;
+                            }
+
+                            if (String(rotate) !== query.rotate) {
+                                badReqErr.message = `The "rotate" parameter must be a whole number without decimals or extra characters. Received: "${query.rotate}".`;
+                                throw badReqErr;
+                            }
+
+                            if (rotate < 0 || rotate > 360) {
+                                badReqErr.message = `The "rotate" parameter must be between 0 and 360 degrees inclusive. Received: "${rotate}".`;
+                                throw badReqErr;
                             }
 
                             options.rotate = rotate;
                         }
 
                         if ('quality' in query) {
-                            const quality = parseInt(query.quality as string);
+                            const queryQuality = query.quality as string;
+                            const quality = parseInt(queryQuality);
+
                             if (isNaN(quality)) {
-                                return res.status(400).json({
-                                    error: `Invalid quality parameter: ${query.quality}`,
-                                });
+                                badReqErr.message = `The "quality" parameter must be a valid integer between 0 and 100. Received: "${query.quality}".`;
+                                throw badReqErr;
+                            }
+
+                            if (String(quality) !== queryQuality) {
+                                badReqErr.message = `The "quality" parameter must be a whole number without decimals or extra characters. Received: "${query.quality}".`;
+                                throw badReqErr;
+                            }
+
+                            if (quality < 1 || quality > 100) {
+                                badReqErr.message = `The "quality" parameter must be between 1 and 100 inclusive. Received: "${quality}".`;
+                                throw badReqErr;
                             }
 
                             options.quality = quality;
@@ -243,20 +286,18 @@ const controllers: Record<`v${number}`, Endpoint> = {
                         if ('flip' in query) {
                             const flip = query.flip;
                             if (flip !== 'true' && flip !== 'false') {
-                                return res.status(400).json({
-                                    error: `Invalid flip parameter: ${query.flip}`,
-                                });
+                                badReqErr.message = `The "flip" parameter must be either "true" (vertical flip) or "false" (no vertical flip). Received: "${flip}".`;
+                                throw badReqErr;
                             }
 
-                            options.flip = query.flip === 'true';
+                            options.flip = flip === 'true';
                         }
 
                         if ('flop' in query) {
                             const flop = query.flop;
                             if (flop !== 'true' && flop !== 'false') {
-                                return res.status(400).json({
-                                    error: `Invalid flop parameter: ${query.flop}`,
-                                });
+                                badReqErr.message = `The "flop" parameter must be either "true" (horizontal flip) or "false" (no horizontal flip). Received: "${flop}".`;
+                                throw badReqErr;
                             }
 
                             options.flop = flop === 'true';
@@ -274,12 +315,12 @@ const controllers: Record<`v${number}`, Endpoint> = {
                         stream.pipe(res);
                     } catch (error) {
                         if (error instanceof HTTPError) {
-                            return res
-                                .status(error.status)
-                                .json({ error: error.message });
+                            return res.status(error.status).json({
+                                error: error.message,
+                                code: error.code,
+                            });
                         }
 
-                        console.error(error);
                         res.status(500).json({
                             error:
                                 error instanceof Error

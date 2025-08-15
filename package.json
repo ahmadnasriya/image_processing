@@ -25,6 +25,7 @@
     "eslint": "^9.32.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
+    "jasmine": "^5.9.0",
     "jasmine-spec-reporter": "^7.0.0",
     "nodemon": "^3.1.10",
     "prettier": "^3.6.2",
@@ -37,7 +38,6 @@
     "@nasriya/uuidx": "^1.0.3",
     "busboy": "^1.6.0",
     "express": "^5.1.0",
-    "jasmine": "^5.9.0",
     "sharp": "^0.34.3"
   }
 }
